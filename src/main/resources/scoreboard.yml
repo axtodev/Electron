@@ -1,10 +1,10 @@
-scoreboard:
-  enabled: true
-  title: "%animation%"
-  footer: "&7&oexample.com"
+SCOREBOARD:
+  ENABLED: true
+  TITLE: "%animation%"
+  FOOTER: "&7&oexample.com"
 
-  in-lobby:
-    lines:
+  IN-LOBBY:
+    LINES:
       - "&7&m-------------------"
       - "&b&l ▎ &fOnline: &b<online>"
       - "&b&l ▎ &fFighting: &b<in-queue>"
@@ -12,8 +12,8 @@ scoreboard:
       - "<footer>"
       - "&7&m-------------------"
 
-  in-queue:
-    lines:
+  IN-QUEUE:
+    LINES:
       - "&7&m-------------------"
       - "&b&lQueueing&7:"
       - "&b&l ▎ &fKit: &b<kit>"
@@ -22,8 +22,8 @@ scoreboard:
       - "<footer>"
       - "&7&m-------------------"
 
-  in-game:
-    lines:
+  IN-GAME:
+    LINES:
       - "&7&m-------------------"
       - "&b&l ▎ &fFighting: &c<opponent>"
       - "&b&l ▎ &fDuration: &a<duration>"
@@ -34,8 +34,8 @@ scoreboard:
       - "<footer>"
       - "&7&m-------------------"
 
-  in-boxing:
-    lines:
+  IN-BOXING:
+    LINES:
       - "&7&m-------------------"
       - "&b&l ▎ &fFighting: &c<opponent>"
       - "&b&l ▎ &fDuration: &a<duration>"
@@ -49,17 +49,17 @@ scoreboard:
       - "<footer>"
       - "&7&m-------------------"
 
-  match-starting:
-    lines:
+  MATCH-STARTING:
+    LINES:
       - "&7&m-------------------"
       - "&b&l ▎ &fFighting: &c<opponent>"
-     # - "&b&l ▎ &fStarting: &b<starting-c>" cba to add
+      - "&b&l ▎ &fStarting: &b<starting-c>"
       - " "
       - "<footer>"
       - "&7&m-------------------"
 
-  match-ending:
-    lines:
+  MATCH-ENDING:
+    LINES:
       - "&7&m-------------------"
       - "&b&l ▎ &fMatch Ended"
       - "&b&l ▎ &fWinner&7: &a<winner>"
@@ -68,19 +68,19 @@ scoreboard:
       - "<footer>"
       - "&7&m-------------------"
 
-  ANIMATION:
-    INTERVAL: 20
-    LINES:
-      - "&b&lPRACTICE"
-      - "&f&lP&b&lRACTICE"
-      - "&b&lP&f&lR&b&lACTICE"
-      - "&b&lPR&f&lA&b&lCTICE"
-      - "&b&lPRA&f&lC&b&lTICE"
-      - "&b&lPRAC&f&lT&b&lICE"
-      - "&b&lPRACT&f&lI&b&lCE"
-      - "&b&lPRACTI&f&lC&b&lE"
-      - "&b&lPRACTIC&f&lE"
-      - "&b&lPRACTICE"
-      - "&f&lPRACTICE"
-      - "&b&lPRACTICE"
-      - "&f&lPRACTICE"
+ANIMATION:
+  INTERVAL: 20
+  LINES:
+    - "&b&lPRACTICE"
+    - "&f&lP&b&lRACTICE"
+    - "&b&lP&f&lR&b&lACTICE"
+    - "&b&lPR&f&lA&b&lCTICE"
+    - "&b&lPRA&f&lC&b&lTICE"
+    - "&b&lPRAC&f&lT&b&lICE"
+    - "&b&lPRACT&f&lI&b&lCE"
+    - "&b&lPRACTI&f&lC&b&lE"
+    - "&b&lPRACTIC&f&lE"
+    - "&b&lPRACTICE"
+    - "&f&lPRACTICE"
+    - "&b&lPRACTICE"
+    - "&f&lPRACTICE"

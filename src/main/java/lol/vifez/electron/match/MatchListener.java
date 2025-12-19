@@ -18,31 +18,32 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class MatchListener implements Listener {
 
-    public MatchListener() {
-        Practice.getInstance().getServer().getPluginManager().registerEvents(this, Practice.getInstance());
+    private final Practice plugin;
+
+    public MatchListener(Practice plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
     public void onDamageWhileStart(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
-            Profile profile = Practice.getInstance().getProfileManager().getProfile(player.getName());
+        if (!(event.getEntity() instanceof Player)) return;
 
-            if (profile.inMatch() &&
-                    (profile.getMatch().getMatchState() == MatchState.STARTING
-                            || profile.getMatch().getMatchState() == MatchState.ENDING
-                            || profile.getMatch().getMatchState() == MatchState.ENDED)) {
-                event.setCancelled(true);
-            }
+        Player player = (Player) event.getEntity();
+        Profile profile = plugin.getProfileManager().getProfile(player.getUniqueId());
+        if (profile == null || !profile.inMatch()) return;
+
+        MatchState state = profile.getMatch().getMatchState();
+        if (state == MatchState.STARTING || state == MatchState.ENDING || state == MatchState.ENDED) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        Profile profile = Practice.getInstance().getProfileManager().getProfile(player.getName());
-
-        if (!profile.inMatch()) return;
+        Profile profile = plugin.getProfileManager().getProfile(player.getUniqueId());
+        if (profile == null || !profile.inMatch()) return;
 
         Profile killer = profile.getMatch().getOpponent(player);
 
@@ -55,6 +56,6 @@ public class MatchListener implements Listener {
         event.setKeepLevel(false);
 
         profile.getMatch().setWinner(killer);
-        Practice.getInstance().getMatchManager().end(profile.getMatch());
+        plugin.getMatchManager().end(profile.getMatch());
     }
 }

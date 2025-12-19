@@ -33,33 +33,37 @@ public class HotbarListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        Action action = event.getAction();
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
 
         Player player = event.getPlayer();
-        ItemStack itemInHand = player.getInventory().getItemInHand();
+        ItemStack item = player.getInventory().getItemInHand();
+        if (item == null) return;
+
         Practice instance = Practice.getInstance();
+        Profile profile = instance.getProfileManager().getProfile(player.getUniqueId());
 
-        if (itemInHand == null) return;
-
-        if (itemInHand.isSimilar(Hotbar.UNRANKED.getItem())) {
+        if (item.isSimilar(Hotbar.UNRANKED.getItem())) {
             event.setCancelled(true);
             new UnrankedMenu(instance).openMenu(player);
 
-        } else if (itemInHand.isSimilar(Hotbar.LEADERBOARDS.getItem())) {
-            event.setCancelled(true);
-            new LeaderboardMenu(instance).openMenu(player);
-
-        } else if (itemInHand.isSimilar(Hotbar.SETTINGS.getItem())) {
-            event.setCancelled(true);
-            Profile profile = instance.getProfileManager().getProfile(player.getUniqueId());
-            if (profile != null) new OptionsMenu().openMenu(player);
-            else player.sendMessage(CC.translate("&cProfile not found!"));
-
-        } else if (itemInHand.isSimilar(Hotbar.RANKED.getItem())) {
+        } else if (item.isSimilar(Hotbar.RANKED.getItem())) {
             event.setCancelled(true);
             new RankedMenu(instance).openMenu(player);
 
-        } else if (itemInHand.isSimilar(Hotbar.LEAVE_QUEUE.getItem())) {
+        } else if (item.isSimilar(Hotbar.LEADERBOARDS.getItem())) {
+            event.setCancelled(true);
+            new LeaderboardMenu(instance).openMenu(player);
+
+        } else if (item.isSimilar(Hotbar.SETTINGS.getItem())) {
+            event.setCancelled(true);
+            if (profile != null) {
+                new OptionsMenu().openMenu(player);
+            } else {
+                player.sendMessage(CC.translate("&cProfile not found!"));
+            }
+
+        } else if (item.isSimilar(Hotbar.LEAVE_QUEUE.getItem())) {
             event.setCancelled(true);
             Queue queue = instance.getQueueManager().getQueue(player.getUniqueId());
             if (queue != null) queue.remove(player);
@@ -68,20 +72,19 @@ public class HotbarListener implements Listener {
             player.getInventory().setArmorContents(null);
             CC.sendMessage(player, "&cYou left the queue!");
 
-        } else if (itemInHand.isSimilar(Hotbar.KIT_EDITOR.getItem())) {
+        } else if (item.isSimilar(Hotbar.KIT_EDITOR.getItem())) {
             event.setCancelled(true);
             new KitSelectMenu(instance).openMenu(player);
 
-        } else if (itemInHand.isSimilar(Hotbar.NAVIGATOR.getItem())) {
+        } else if (item.isSimilar(Hotbar.NAVIGATOR.getItem())) {
             event.setCancelled(true);
-            Profile profile = instance.getProfileManager().getProfile(player.getUniqueId());
             if (profile != null) {
                 new NavigatorMenu(instance).openMenu(player);
             } else {
                 player.sendMessage(CC.translate("&cProfile not found!"));
             }
 
-        } else if (itemInHand.isSimilar(Hotbar.QUEUES.getItem())) {
+        } else if (item.isSimilar(Hotbar.QUEUES.getItem())) {
             event.setCancelled(true);
             new QueuesMenu(instance).openMenu(player);
         }

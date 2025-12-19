@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /*
@@ -20,8 +21,9 @@ import java.util.UUID;
 
 public class PearlListener implements Listener {
 
-    private static final long COOLDOWN = 16_000;
-    private final HashMap<UUID, Long> cooldowns = new HashMap<>();
+    private static final long COOLDOWN = 16_000L;
+    private static final long UPDATE_INTERVAL = 2L;
+    private final Map<UUID, Long> cooldowns = new HashMap<>();
 
     public PearlListener() {
         Practice.getInstance().getServer().getPluginManager().registerEvents(this, Practice.getInstance());
@@ -68,10 +70,10 @@ public class PearlListener implements Listener {
                 }
 
                 double remaining = (COOLDOWN - elapsed) / 1000.0;
-                float xp = (float) (remaining / (COOLDOWN / 1000.0));
+                float xp = (float) Math.max(0.0, Math.min(1.0, remaining / (COOLDOWN / 1000.0)));
                 player.setLevel((int) Math.ceil(remaining));
                 player.setExp(xp);
             }
-        }.runTaskTimerAsynchronously(Practice.getInstance(), 0L, 2L);
+        }.runTaskTimer(Practice.getInstance(), 0L, UPDATE_INTERVAL);
     }
 }

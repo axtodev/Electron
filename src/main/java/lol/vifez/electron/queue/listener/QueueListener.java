@@ -15,15 +15,16 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class QueueListener implements Listener {
 
-    public QueueListener() {
-        Practice instance = Practice.getInstance();
-        instance.getServer().getPluginManager().registerEvents(this, instance);
+    private final Practice plugin;
+    public QueueListener(Practice plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
-    public void onPlayerQuitEvent(PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Queue queue = Practice.getInstance().getQueueManager().getQueue(player.getUniqueId());
+        Queue queue = plugin.getQueueManager().getQueue(player.getUniqueId());
 
         if (queue != null) {
             queue.remove(player);

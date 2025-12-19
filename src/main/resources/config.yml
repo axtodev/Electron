@@ -4,19 +4,19 @@
 # ██╔══╝  ██║     ██╔══╝  ██║        ██║   ██╔══██╗██║   ██║██║╚██╗██║
 # ███████╗███████╗███████╗╚██████╗   ██║   ██║  ██║╚██████╔╝██║ ╚████║
 # ╚══════╝╚══════╝╚══════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-#                       Practice • v1.7.1
+#                       Practice • v1.7.2
 
 MONGO:
   URI: "mongodb://127.0.0.1:27017"
   DATABASE: "electron"
 
-settings:
+SETTINGS:
   # ↓ Spawn Cords (/setspawn works)
-  spawn-location: "world, 0, 150, 0, 0, 0"
+  SPAWN-LOCATION: "world, 0, 150, 0, 0, 0"
   # ↓ Would you like a Join MOTD?
-  join-message:
-    enabled: true
-    messages:
+  JOIN-MESSAGE:
+    ENABLED: true
+    TEXT:
       - " "
       - "&b&lElectron Practice"
       - " &7Duels, events, ranked"

@@ -22,8 +22,8 @@ public class AnimationManager {
 
     public AnimationManager() {
         ScoreboardConfig config = Practice.getInstance().getScoreboardConfig();
-        frames = config.getStringList("scoreboard.ANIMATION.LINES");
-        interval = config.getInt("scoreboard.ANIMATION.INTERVAL");
+        frames = config.getStringList("ANIMATION.LINES");
+        interval = config.getInt("ANIMATION.INTERVAL");
 
         startAnimationTask();
     }

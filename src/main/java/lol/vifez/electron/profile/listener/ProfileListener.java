@@ -92,8 +92,8 @@ public class ProfileListener implements Listener {
 
         player.sendTitle(CC.translate("&b&lPRACTICE"), CC.translate("&7Welcome to Practice (EU)"));
 
-        if (instance.getConfig().getBoolean("settings.join-message.enabled", true)) {
-            List<String> messages = instance.getConfig().getStringList("settings.join-message.messages");
+        if (instance.getConfig().getBoolean("SETTINGS.JOIN-MESSAGE.ENABLED", true)) {
+            List<String> messages = instance.getConfig().getStringList("SETTINGS.JOIN-MESSAGE.TEXT");
             for (String message : messages) {
                 player.sendMessage(CC.translate(message));
             }

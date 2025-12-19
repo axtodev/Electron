@@ -39,7 +39,6 @@ public class ActionBarTask extends BukkitRunnable {
                 String kitName = queue.getKit().getName();
                 String formattedTime = queue.getQueueTime(playerId);
                 String message = type + " " + kitName + " &7| &fQueued for " + formattedTime;
-
                 ActionBar.sendActionBar(player, CC.translate(message));
             }
         }

@@ -18,6 +18,12 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * Electron © Vifez
+ * Developed by Vifez
+ * Copyright (c) 2025 Vifez. All rights reserved.
+ */
+
 public class NavigatorMenu extends Menu {
 
     private final Practice instance;

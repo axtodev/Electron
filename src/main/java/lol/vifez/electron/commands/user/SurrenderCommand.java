@@ -43,7 +43,7 @@ public class SurrenderCommand extends BaseCommand {
             return;
         }
 
-        Profile opponent = match.getOpponent(player);
+        Profile opponent = match.getOpponent(profile);
         match.setWinner(opponent);
 
         player.sendMessage(" ");

@@ -45,7 +45,7 @@ public class MatchListener implements Listener {
         Profile profile = plugin.getProfileManager().getProfile(player.getUniqueId());
         if (profile == null || !profile.inMatch()) return;
 
-        Profile killer = profile.getMatch().getOpponent(player);
+        Profile killer = profile.getMatch().getOpponent(profile);
 
         event.getDrops().clear();
         event.setDeathMessage(null);

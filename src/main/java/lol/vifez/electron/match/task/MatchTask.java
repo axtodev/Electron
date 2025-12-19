@@ -1,6 +1,7 @@
 package lol.vifez.electron.match.task;
 
 import lol.vifez.electron.Practice;
+import lol.vifez.electron.match.Match;
 import lol.vifez.electron.match.MatchManager;
 import lol.vifez.electron.match.enums.MatchState;
 import lol.vifez.electron.match.event.MatchStartEvent;
@@ -12,30 +13,29 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 
-/* 
+/*
  * Electron © Vifez
  * Developed by Vifez
  * Copyright (c) 2025 Vifez. All rights reserved.
-*/
+ */
 
 public class MatchTask extends BukkitRunnable {
 
-    private final MatchManager matchHandler;
+    private final MatchManager matchManager;
 
-    public MatchTask(MatchManager matchHandler) {
-        this.matchHandler = matchHandler;
+    public MatchTask(MatchManager matchManager) {
+        this.matchManager = matchManager;
     }
 
     @Override
     public void run() {
-        matchHandler.getMatches().values().forEach(match -> {
-            if (match.getMatchState() != MatchState.STARTING) return;
-            if (match.isCountdownRunning()) return;
-
+        matchManager.getMatches().values().forEach(match -> {
+            if (match.getMatchState() != MatchState.STARTING || match.isCountdownRunning()) return;
             match.setCountdownRunning(true);
 
-            Arrays.asList(match.getPlayerOne(), match.getPlayerTwo()).forEach(profile -> {
-                Profile opponent = profile == match.getPlayerOne() ? match.getPlayerTwo() : match.getPlayerOne();
+            Profile[] players = {match.getPlayerOne(), match.getPlayerTwo()};
+            Arrays.stream(players).forEach(profile -> {
+                Profile opponent = match.getOpponent(profile);
                 profile.getPlayer().sendMessage(" ");
                 profile.getPlayer().sendMessage(CC.colorize("&b&lOPPONENT FOUND"));
                 profile.getPlayer().sendMessage(CC.colorize("&fKit: &b" + match.getKit().getName()));
@@ -50,51 +50,18 @@ public class MatchTask extends BukkitRunnable {
                 @Override
                 public void run() {
                     match.setCurrentCountdown(countdown);
-
                     if (countdown > 0) {
-                        Arrays.asList(match.getPlayerOne(), match.getPlayerTwo()).forEach(profile -> {
-                            profile.getPlayer().sendMessage(
-                                    CC.colorize("&7Match Starting In &b" + countdown + "s")
-                            );
-                            profile.getPlayer().playSound(
-                                    profile.getPlayer().getLocation(),
-                                    Sound.NOTE_PIANO, 0.5f, 0.5f
-                            );
+                        Arrays.stream(players).forEach(p -> {
+                            p.getPlayer().sendMessage(CC.colorize("&7Match Starting In &b" + countdown + "s"));
+                            p.getPlayer().playSound(p.getPlayer().getLocation(), Sound.NOTE_PIANO, 0.5f, 0.5f);
                         });
                         countdown--;
                     } else {
-                        match.setCurrentCountdown(0);
+                        Arrays.stream(players).forEach(p -> match.allowMovement(p.getPlayer()));
                         match.setMatchState(MatchState.STARTED);
-
-                        Arrays.asList(match.getPlayerOne(), match.getPlayerTwo()).forEach(profile -> {
-                            if (profile.getKitLoadout().containsKey(match.getKit().getName())) {
-                                profile.getPlayer().getInventory().setContents(
-                                        profile.getKitLoadout().get(match.getKit().getName())
-                                );
-                            } else {
-                                profile.getPlayer().getInventory().setContents(match.getKit().getContents());
-                            }
-
-                            profile.getPlayer().getInventory().setArmorContents(match.getKit().getArmorContents());
-                            profile.getPlayer().updateInventory();
-
-                            match.allowMovement(profile.getPlayer());
-
-                            profile.getPlayer().sendMessage(CC.colorize("&aMatch started!"));
-                            profile.getPlayer().playSound(
-                                    profile.getPlayer().getLocation(),
-                                    Sound.NOTE_PLING, 1.0f, 1.0f
-                            );
-                        });
-
-                        Bukkit.getPluginManager().callEvent(
-                                new MatchStartEvent(
-                                        match.getPlayerOne(), match.getPlayerTwo(), match
-                                )
-                        );
-
+                        Bukkit.getPluginManager().callEvent(new MatchStartEvent(match.getPlayerOne(), match.getPlayerTwo(), match));
                         match.setCountdownRunning(false);
-                        this.cancel();
+                        cancel();
                     }
                 }
             }.runTaskTimer(Practice.getInstance(), 0L, 20L);

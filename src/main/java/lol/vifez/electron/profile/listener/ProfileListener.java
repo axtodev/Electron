@@ -108,7 +108,7 @@ public class ProfileListener implements Listener {
         if (profile != null) {
             if (profile.inMatch()) {
                 Match match = profile.getMatch();
-                Profile opponent = match.getOpponent(player);
+                Profile opponent = match.getOpponent(profile);
 
                 if (opponent != null && opponent.getPlayer() != null) {
                     match.setWinner(opponent);

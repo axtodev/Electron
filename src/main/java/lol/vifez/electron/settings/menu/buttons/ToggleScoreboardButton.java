@@ -12,6 +12,12 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
+/*
+ * Electron © Vifez
+ * Developed by Vifez
+ * Copyright (c) 2025 Vifez. All rights reserved.
+ */
+
 public class ToggleScoreboardButton {
     public static Button createToggleScoreboardButton(Profile profile, Practice instance) {
         boolean scoreboardEnabled = profile.isScoreboardEnabled();

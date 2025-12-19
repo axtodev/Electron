@@ -9,10 +9,9 @@ import lol.vifez.electron.match.event.MatchStartEvent;
 import lol.vifez.electron.profile.Profile;
 import lol.vifez.electron.util.CC;
 import lol.vifez.electron.hotbar.Hotbar;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,19 +21,33 @@ import java.util.concurrent.ConcurrentHashMap;
  * Electron © Vifez
  * Developed by Vifez
  * Copyright (c) 2025 Vifez. All rights reserved.
-*/
+ */
 
-@Getter
 public class MatchManager {
 
-    private final Map<UUID, Match> matches;
-
-    public MatchManager() {
-        this.matches = new ConcurrentHashMap<>();
-    }
+    private final Map<UUID, Match> matches = new ConcurrentHashMap<>();
 
     public Match getMatch(UUID uuid) {
         return matches.get(uuid);
+    }
+
+    public Map<UUID, Match> getMatches() {
+        return matches;
+    }
+
+    public void add(Match match) {
+        matches.put(match.getPlayerOne().getUuid(), match);
+        matches.put(match.getPlayerTwo().getUuid(), match);
+    }
+
+    public void remove(Match match) {
+        match.getArena().setBusy(false);
+        matches.remove(match.getPlayerOne().getUuid());
+        matches.remove(match.getPlayerTwo().getUuid());
+    }
+
+    public int getTotalPlayersInMatches() {
+        return matches.values().stream().mapToInt(m -> m.getMatchState() == MatchState.STARTED ? 2 : 0).sum();
     }
 
     public int getPlayersInKitMatches(Kit kit) {
@@ -45,148 +58,44 @@ public class MatchManager {
                 .sum();
     }
 
-    public void remove(UUID uuid) {
-        matches.remove(uuid);
-    }
-
-    public void remove(Match match) {
-        match.getArena().setBusy(false);
-
-        matches.remove(match.getPlayerOne().getUuid());
-        matches.remove(match.getPlayerTwo().getUuid());
-    }
-
-    public int getAllMatchSize() {
-        return matches.size() * 2;
-    }
-
     public void start(Match match) {
         match.setMatchState(MatchState.STARTING);
         match.getArena().setBusy(true);
 
-        Profile profileOne = match.getPlayerOne();
-        Profile profileTwo = match.getPlayerTwo();
-        Profile[] profiles = {profileOne, profileTwo};
+        match.teleportAndSetup(match.getPlayerOne(), true);
+        match.teleportAndSetup(match.getPlayerTwo(), false);
 
-        int index = 0;
-        for (Profile profile : profiles) {
-            profile.getPlayer().teleport(index == 0 ? match.getArena().getSpawnA() : match.getArena().getSpawnB());
-            profile.getPlayer().getActivePotionEffects().clear();
-            match.denyMovement(profile.getPlayer());
-
-            ItemStack[] loadout = profile.getKitLoadout().getOrDefault(
-                    match.getKit().getName(),
-                    match.getKit().getContents()
-            );
-            profile.getPlayer().getActivePotionEffects().forEach(effect -> profile.getPlayer().removePotionEffect(effect.getType()));
-
-            profile.getPlayer().getInventory().setContents(loadout);
-            profile.getPlayer().getInventory().setArmorContents(match.getKit().getArmorContents());
-            profile.getPlayer().updateInventory();
-
-            if (profile.getQueue() != null) {
-                profile.getQueue().remove(profile.getPlayer());
-            }
-
-            matches.put(profile.getUuid(), match);
-            index++;
-        }
-
-        Bukkit.getPluginManager().callEvent(new MatchStartEvent(profileOne, profileTwo, match));
-    }
-
-    public int getTotalPlayersInMatches() {
-        return matches.values().stream()
-                .mapToInt(match -> match.getMatchState() == MatchState.STARTED ? 2 : 0)
-                .sum();
+        Bukkit.getPluginManager().callEvent(new MatchStartEvent(match.getPlayerOne(), match.getPlayerTwo(), match));
     }
 
     public void end(Match match) {
         match.setMatchState(MatchState.ENDING);
 
-        if (match.getWinner() == null) {
-            Profile profileOne = match.getPlayerOne();
-            Profile profileTwo = match.getPlayerTwo();
-            Profile[] profiles = {profileOne, profileTwo};
+        Profile winner = match.getWinner();
+        Profile loser = winner == null ? null : match.getOpponent(winner);
 
-            for (Profile profile : profiles) {
-                CC.sendMessage(profile.getPlayer(), "&cMatch has ended!");
-                profile.getPlayer().playSound(profile.getPlayer().getLocation(), Sound.NOTE_PLING, 0.5f, 0.5f);
-                Bukkit.getPluginManager().callEvent(new MatchEndEvent(profileOne, profileTwo, match));
+        if (winner != null && match.isRanked()) updateEloForRankedMatch(winner, loser, match.getKit());
 
-                Practice.getInstance().getServer().getScheduler().runTaskLater(Practice.getInstance(), () -> {
-                    profile.getPlayer().getInventory().setArmorContents(null);
-                    profile.getPlayer().getInventory().setContents(Hotbar.getSpawnItems());
+        Profile[] profiles = winner == null ? new Profile[]{match.getPlayerOne(), match.getPlayerTwo()} : new Profile[]{winner, loser};
 
-                    profile.getPlayer().teleport(Practice.getInstance().getSpawnLocation());
-
-                    match.setMatchState(MatchState.ENDED);
-                    match.getArena().setBusy(false);
-
-                    remove(match);
-                }, 100L);
-            }
-        } else {
-            Profile winner = match.getWinner();
-            Profile loser = match.getOpponent(match.getWinner().getPlayer());
-            Profile[] profiles = {winner, loser};
-
-            if (match.isRanked()) {
-                updateEloForRankedMatch(winner, loser, match.getKit());
-            }
-
-            recordMatchResult(winner, loser, match.getKit());
-
-            winner.setRematchOpponent(loser.getPlayer());
-            loser.setRematchOpponent(winner.getPlayer());
-            winner.setRematchKit(match.getKit());
-            loser.setRematchKit(match.getKit());
-
-            for (Profile profile : profiles) {
-                profile.getPlayer().playSound(profile.getPlayer().getLocation(), Sound.NOTE_PLING, 0.5f, 0.5f);
-
-                Practice.getInstance().getServer().getScheduler().runTaskLater(Practice.getInstance(), () -> {
-                    profile.getPlayer().getInventory().setArmorContents(null);
-                    profile.getPlayer().getInventory().setContents(Hotbar.getSpawnItems());
-
-                    profile.getPlayer().teleport(Practice.getInstance().getSpawnLocation());
-                    profile.getPlayer().getActivePotionEffects().forEach(effect -> profile.getPlayer().removePotionEffect(effect.getType()));
-
-                    match.setMatchState(MatchState.ENDED);
-                    match.getArena().setBusy(false);
-
-                    match.allowMovement(profile.getPlayer());
-                    remove(match);
-                }, 100L);
-            }
+        for (Profile profile : profiles) {
+            Player player = profile.getPlayer();
+            CC.sendMessage(player, winner == null ? "&cMatch has ended!" : "&aMatch finished!");
+            player.playSound(player.getLocation(), Sound.NOTE_PLING, 0.5f, 0.5f);
+            resetPlayerAfterMatch(player);
         }
+
+        Bukkit.getPluginManager().callEvent(new MatchEndEvent(match.getPlayerOne(), match.getPlayerTwo(), match));
+        remove(match);
     }
 
-    private void recordMatchResult(Profile winner, Profile loser, Kit kit) {
-        winner.setWins(winner.getWins() + 1);
-        winner.setWinStreak(winner.getWinStreak() + 1);
-
-        loser.setLosses(loser.getLosses() + 1);
-        loser.setWinStreak(0);
-
-        winner.getKitWins().put(kit.getName(),
-                winner.getKitWins().getOrDefault(kit.getName(), 0) + 1);
-
-        Practice plugin = Practice.getInstance();
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            plugin.getProfileManager().getProfileRepository()
-                    .saveData(winner.getUuid().toString(), winner);
-            plugin.getProfileManager().getProfileRepository()
-                    .saveData(loser.getUuid().toString(), loser);
-        });
+    private void resetPlayerAfterMatch(Player player) {
+        player.getInventory().setContents(Hotbar.getSpawnItems());
+        player.getInventory().setArmorContents(null);
+        player.teleport(Practice.getInstance().getSpawnLocation());
+        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
     }
 
-    /**
-     * Updates ELO for both players in a ranked match
-     * @param winner The winning player
-     * @param loser The losing player
-     * @param kit The kit used in the match
-     */
     private void updateEloForRankedMatch(Profile winner, Profile loser, Kit kit) {
         int winnerElo = winner.getElo(kit);
         int loserElo = loser.getElo(kit);
@@ -200,16 +109,7 @@ public class MatchManager {
         winner.checkDivision(kit);
         loser.checkDivision(kit);
 
-        if (winner.getPlayer() != null) {
-            int eloChange = newWinnerElo - winnerElo;
-            String changeMsg = eloChange >= 0 ? "&a+" + eloChange : "&c" + eloChange;
-            CC.sendMessage(winner.getPlayer(), "&aYou won! &7ELO: " + changeMsg + " &7(&e" + newWinnerElo + "&7)");
-        }
-
-        if (loser.getPlayer() != null) {
-            int eloChange = newLoserElo - loserElo;
-            String changeMsg = eloChange >= 0 ? "&a+" + eloChange : "&c" + eloChange;
-            CC.sendMessage(loser.getPlayer(), "&cYou lost! &7ELO: " + changeMsg + " &7(&e" + newLoserElo + "&7)");
-        }
+        CC.sendMessage(winner.getPlayer(), "&aYou won! &7ELO: " + (newWinnerElo - winnerElo >= 0 ? "&a+" : "&c") + (newWinnerElo - winnerElo));
+        CC.sendMessage(loser.getPlayer(), "&cYou lost! &7ELO: " + (newLoserElo - loserElo >= 0 ? "&a+" : "&c") + (newLoserElo - loserElo));
     }
 }

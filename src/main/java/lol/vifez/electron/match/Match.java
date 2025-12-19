@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -19,12 +20,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-/* 
- * Electron © Vifez
- * Developed by Vifez
- * Copyright (c) 2025 Vifez. All rights reserved.
-*/
 
 @Data
 public class Match {
@@ -41,8 +36,10 @@ public class Match {
     private int countdownTime = 5;
     @Getter @Setter
     private int currentCountdown = -1;
-    private Instant startTime;
+    @Getter @Setter
+    private boolean countdownRunning = false;
 
+    private Instant startTime;
     private Map<UUID, Integer> hitsMap = new HashMap<>();
     private boolean bedBrokenOne = false, bedBrokenTwo = false;
 
@@ -61,23 +58,16 @@ public class Match {
     }
 
     public String getDuration() {
-        Instant now = Instant.now();
-        Duration duration = Duration.between(startTime, now);
+        Duration duration = Duration.between(startTime, Instant.now());
         long seconds = duration.getSeconds();
-
         long hours = seconds / 3600;
         long minutes = (seconds % 3600) / 60;
         long remainingSeconds = seconds % 60;
-
         return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds);
     }
 
-    @Getter
-    @Setter
-    private boolean countdownRunning = false;
-
-    public Profile getOpponent(Player player) {
-        return player.getUniqueId().equals(playerOne.getUuid()) ? playerTwo : playerOne;
+    public Profile getOpponent(Profile profile) {
+        return profile.getUuid().equals(playerOne.getUuid()) ? playerTwo : playerOne;
     }
 
     public void denyMovement(Player player) {
@@ -85,7 +75,6 @@ public class Match {
         player.setWalkSpeed(0.0F);
         player.setFlySpeed(0.0F);
         player.setFoodLevel(0);
-
         player.setSprinting(false);
         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 200));
         player.setGameMode(GameMode.SURVIVAL);
@@ -97,8 +86,21 @@ public class Match {
         player.setWalkSpeed(0.2F);
         player.setFlySpeed(0.2F);
         player.setFoodLevel(20);
-
         player.setSprinting(true);
         player.setGameMode(GameMode.SURVIVAL);
+    }
+
+    public void teleportAndSetup(Profile profile, boolean firstSpawn) {
+        Player player = profile.getPlayer();
+        player.teleport(firstSpawn ? arena.getSpawnA() : arena.getSpawnB());
+        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+        denyMovement(player);
+
+        ItemStack[] contents = profile.getKitLoadout().getOrDefault(kit.getName(), kit.getContents());
+        player.getInventory().setContents(contents);
+        player.getInventory().setArmorContents(kit.getArmorContents());
+        player.updateInventory();
+
+        if (profile.getQueue() != null) profile.getQueue().remove(player);
     }
 }

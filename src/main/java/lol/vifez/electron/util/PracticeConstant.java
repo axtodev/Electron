@@ -7,6 +7,12 @@ import com.google.gson.JsonParser;
 
 import java.util.TimeZone;
 
+/*
+ * Electron © Vifez
+ * Developed by Vifez
+ * Copyright (c) 2025 Vifez. All rights reserved.
+ */
+
 public class PracticeConstant {
 
     public static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT");

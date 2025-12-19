@@ -20,6 +20,12 @@ import java.util.Objects;
 @Data
 public class DuelRequest {
 
+    private final Practice instance;
+    private final Profile sender;
+    private final Profile target;
+    private final Kit kit;
+    private final long requestedAt;
+
     public DuelRequest(Practice instance, Profile sender, Profile target, Kit kit, long requestedAt) {
         this.instance = instance;
         this.sender = sender;
@@ -28,35 +34,32 @@ public class DuelRequest {
         this.requestedAt = requestedAt;
     }
 
-    private final Practice instance;
-    private final Profile sender, target;
-
-    private final Kit kit;
-    private final long requestedAt;
-
     public boolean isExpired() {
-        return System.currentTimeMillis() - requestedAt > 30000;
+        return System.currentTimeMillis() - requestedAt > 30_000;
     }
 
     public void accept() {
-        Arena arena = instance.getArenaManager().getAllAvailableArenas(kit)
-                .stream().filter(Objects::nonNull).findFirst().orElse(null);
+        Arena arena = instance.getArenaManager()
+                .getAllAvailableArenas(kit)
+                .stream()
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
 
-        CC.sendMessage(sender.getPlayer(), "&a" + target.getName() + " has accepted your duel request");
-        CC.sendMessage(target.getPlayer(), "&aYou have accepted " + sender.getName() + "'s duel request");
+        CC.sendMessage(sender.getPlayer(), "&a" + target.getName() + " has accepted your duel request.");
+        CC.sendMessage(target.getPlayer(), "&aYou have accepted " + sender.getName() + "'s duel request.");
 
         if (arena == null) {
             sender.setDuelRequest(null);
             target.setDuelRequest(null);
 
-            CC.sendMessage(Bukkit.getPlayer(sender.getUuid()), "&cError: There aren't any available arenas at the moment.");
-            CC.sendMessage(Bukkit.getPlayer(target.getUuid()), "&cError: There aren't any available arenas at the moment.");
+            CC.sendMessage(sender.getPlayer(), "&cError: There aren't any available arenas at the moment.");
+            CC.sendMessage(target.getPlayer(), "&cError: There aren't any available arenas at the moment.");
             return;
         }
 
         Bukkit.getScheduler().runTask(instance, () -> {
             Match match = new Match(instance, sender, target, kit, arena, false);
-
             instance.getMatchManager().start(match);
         });
     }

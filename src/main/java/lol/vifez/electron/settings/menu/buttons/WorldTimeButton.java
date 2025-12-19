@@ -14,6 +14,12 @@ import org.bukkit.World;
 
 import java.util.Arrays;
 
+/*
+ * Electron © Vifez
+ * Developed by Vifez
+ * Copyright (c) 2025 Vifez. All rights reserved.
+ */
+
 public class WorldTimeButton {
 
     public static Button createWorldTimeButton(Profile profile, Practice instance) {

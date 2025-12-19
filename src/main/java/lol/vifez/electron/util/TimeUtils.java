@@ -7,6 +7,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * Electron © Vifez
+ * Developed by Vifez
+ * Copyright (c) 2025 Vifez. All rights reserved.
+ */
+
 public class TimeUtils {
 
     public static final long MINUTE = TimeUnit.MINUTES.toSeconds(1);

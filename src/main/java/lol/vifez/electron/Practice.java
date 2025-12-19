@@ -69,7 +69,6 @@ public final class Practice extends JavaPlugin {
 
     @Getter private ConfigFile arenasFile;
     @Getter private ConfigFile kitsFile;
-    @Getter private ConfigFile tabFile;
     @Getter private ScoreboardConfig scoreboardConfig;
 
     @Getter private MongoAPI mongoAPI;
@@ -118,11 +117,6 @@ public final class Practice extends JavaPlugin {
     private void initializeConfigFiles() {
         arenasFile = new ConfigFile(this, "arenas.yml");
         kitsFile = new ConfigFile(this, "kits.yml");
-        tabFile = new ConfigFile(this, "tab.yml");
-
-        if (!tabFile.getConfiguration().contains("enabled")) {
-            sendMessage("&c[ERROR] tab.yml is missing essential data!");
-        }
     }
 
     private void initializeServices() {

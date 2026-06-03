@@ -4,21 +4,13 @@
 
 ---
 
-# Electron
+# BetterElectron
 
 
-**Lightweight Practice Core Base for Minecraft 1.7–1.8.9**
+**Fork of electron practice**
 
-Electron is an open source **Minecraft Practice Core** 
+**The scope? recreate mmc practice plugin for free!**
 
-It supports duels, kits, queues, arenas, leaderboards, and more. Still being **semi maintained**, updated periodically.  
-
-Feel free to fork and contribute! 😎
-
-## 📣 Support
-
-Need help or want to join the community?  
-[Join our Discord Server](https://discord.gg/kKKC85rkXU)
 
 # Features
 - **NEW** Navigator menu
@@ -42,9 +34,8 @@ Need help or want to join the community?
 - More command (x64 of whatever in ur hand)
 *And More...*
 
-# Support
-Need support? You can join our discord server and create a ticket!
-- https://discord.vifez.lol
+# Bug?
+Report a bug on dsc.gg/axto
 
 ## 🛠 Permissions
 
@@ -55,24 +46,4 @@ Need support? You can join our discord server and create a ticket!
 | `electron.user`     | Standard user commands            |
 
 # Dependencies
-- Packet events
-- ProtocolLib
-- 1.8
 - MongoDB
-
-# Credits
-- **Vifez** - Main developer & Current maintainer
-- **MTR** - Contributed heavily with me at the start
-- **Lugami** - Insane ass pull request
-- **Mqaaz** - Add 1 global title to scoreboard
-
-# Compiling
-- Clone the repo to your intellij
-- Let maven do its magic
-- run `mvn package`
-- add `target/Electron.jar` to ur server
-- add `libs/packetevents-2.7.0.jar` to ur server
-- run ur server for configs to load, add mongo
-- and boom... practice server!
----
-© vifez 2025
